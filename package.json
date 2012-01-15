@@ -5,7 +5,8 @@
     "private": true,
     "dependencies": {
       "LazyBoy":    "0.1.6",
-      "underscore": "1.1.6"
+      "underscore": "1.1.6",
+	  "mime-magic": "0.2.3"
     }
 }
 

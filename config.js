@@ -2,7 +2,7 @@
 var conf = {
 	shares: {
 		default: {
-			path: '/home/scar/Downloads/'
+			path: '/home/scar/'
 		}
 	},
 
