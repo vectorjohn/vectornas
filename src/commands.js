@@ -3,7 +3,8 @@ var child_process = require( 'child_process' ),
 	exec = child_process.exec,
 	pathmod = require( 'path' ),
 	fs = require( 'fs' ),
-	mime = require( 'mime-magic' ),
+	mimeMagic = require( 'mime-magic' ),
+	mime = require( 'mime' ),
 	conf = require( '../config' );
 
 var commands = {
@@ -55,7 +56,7 @@ var commands = {
 					finfo.type = 'dir';
 				} else if ( stats.isFile() ) {
 					//TODO: get specific type
-					mime.fileWrapper( abs + '/' + f, function( err, mt )
+					mimeLookup( abs + '/' + f, function( mt )
 					{
 						finfo.type = mt;
 						fileMapped();
@@ -83,10 +84,7 @@ var commands = {
 				return handleError( {error: 'Not a file'}, done );
 			}
 
-			mime.fileWrapper( abs, function( err, mt ) {
-				if ( err ) {
-					return handleError( err, done );
-				}
+			mimeLookup( abs, function( mt ) {
 			
 				self.res.writeHead(200, {
 					'Content-Type': mt,
@@ -119,5 +117,29 @@ function handleError( err, done )
 	console.log( 'err', err );
 	done( {error: err} );
 }
+
+function mimeLookup( path, done ) {
+	var tp = mime.lookup( path, 'unknown' );
+	if ( tp !== 'unknown' ) {
+		_.defer( function(){
+			done( tp );
+		} );
+		return;
+	}
+
+	console.log( 'resorting to slow lookup: ', path );
+	mimeMagic.fileWrapper( path, function( err, mt ) {
+		if ( err ) {
+			done( tp );
+		} else {
+			done( mt );
+		}
+	});
+}
+
+mime.define( {
+	'application/x-gzip': ['gz', 'tgz'],
+	'text/sql':	['sql']
+});
 
 module.exports = commands;

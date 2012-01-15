@@ -25,7 +25,8 @@ $(function()
 		var node = $(ev.currentTarget);
 		var path = node.attr( 'href' ).substr( '#files/'.length );
 
-		path = encodeURI( path.substr( 0, path.length - 1 ) );
+		//path = encodeURI( path.substr( 0, path.length - 1 ) );
+		path = encodeURI( path );
 
 		if ( node.hasClass( 'type-file' ) ) {
 			window.location = '/v/get/' + path;
@@ -55,7 +56,7 @@ $(function()
 				$('<li/>')
 					.append( $('<a/>')
 							.addClass( f.type === 'dir' ? 'type-dir' : 'type-file' )
-							.attr( 'href', '#files/' + path + '/' + f.name + '/' )
+							.attr( 'href', '#files/' + path + '/' + f.name )
 							.text( f.name ) )
 					.appendTo( ul );
 			});
