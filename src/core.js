@@ -20,10 +20,14 @@ function RequestHandler( req, res ){
 }
 
 RequestHandler.prototype = {
+    headers: {},
+
 	getResult: function(done){
+        console.log( 'pre decode', this.req.url );
         var req = this.req,
 			url = decodeURI( req.url ),
             resp;
+        console.log( 'post decode', url );
         _.any(this.routes, function( r ) {
             var match = r.regex.exec( url );
             if ( match ) {
@@ -36,11 +40,16 @@ RequestHandler.prototype = {
         return resp;
 	},
 	getHeaders: function(){
-		return {'Content-Type': 'application/json'};
+        if ( !this.headers['Content-Type'] )
+        {
+            this.headers['Content-Type'] = 'application/json';
+        }
+
+        return this.headers;
     },
 
     stringify: function( o ) {
-        return JSON.stringify(o);
+        return typeof o === 'string' ? o : JSON.stringify(o);
     },
 
     routes: [
@@ -54,6 +63,14 @@ RequestHandler.prototype = {
 			//this function handles output
 			return true;
         }},
+
+        /*
+        {regex: '^/tpl/([^\\/]*)$', fun: function( done, tmpl ) {
+            //compile and return handlebars file?
+            this.headers['Content-Type'] = 'text/javascript';
+            return commands.tpl.call( this, tpl, done );
+        }},
+        */
 
         {regex: '^/help/?$', fun: function( done ) {
             done({

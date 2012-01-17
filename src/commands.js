@@ -8,8 +8,7 @@ var child_process = require( 'child_process' ),
 	conf = require( '../config' );
 
 var commands = {
-	files: function( path, done )
-	{
+	files: function( path, done ) {
 		var abs = conf.shares.default.path + '/' + path;
 
 		fs.readdir( abs, function( err, files )
