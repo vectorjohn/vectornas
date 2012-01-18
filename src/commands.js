@@ -9,7 +9,6 @@ var child_process = require( 'child_process' ),
 
 var commands = {
 	files: function( path, done ) {
-		//var abs = conf.shares.default.path + '/' + path;
 
         path = toRealPath( path );
         if ( !path ) {
@@ -99,7 +98,7 @@ var commands = {
 
 	get: function( path, done ) {
 
-		var abs = conf.shares.default.path + '/' + path;
+        var abs = toRealPath( path );
 		var self = this;
 
 		fs.stat( abs, function( err, stats ) {
