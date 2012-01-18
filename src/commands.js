@@ -9,11 +9,27 @@ var child_process = require( 'child_process' ),
 
 var commands = {
 	files: function( path, done ) {
-		var abs = conf.shares.default.path + '/' + path;
+		//var abs = conf.shares.default.path + '/' + path;
 
-		fs.readdir( abs, function( err, files )
+        path = toRealPath( path );
+        if ( !path ) {
+            //TODO: 404
+            return handleError( {error: 'File not found'}, done );
+        }
+
+        if ( path === true ) {
+            path = _.reduce( conf.shares, function( memo, info, name ) {
+                memo[name] = info.path;
+                return memo;
+            }, {});
+
+            statFiles( path, false );
+
+            return;
+        }
+
+		fs.readdir( path, function( err, files )
 		{
-			var infoList = [];
 
 			if ( err ) {
 				return handleError( err, done );
@@ -24,24 +40,37 @@ var commands = {
 				return;
 			}
 
-			var fileMapped = _.after( files.length, function() {
+            statFiles( files, path );
+        });
+
+        //files is an array of file names, abs is the path they are in
+        //if abs is false, files is the conf.shares list
+        function statFiles( files, abs ) {
+
+            var listShares = !abs;  //no abs (root) dir means list shares
+
+			var infoList = [];
+            var numFiles = _.isArray( files ) ? 
+                files.length : _.keys( files ).length ;
+
+			var fileMapped = _.after( numFiles, function() {
 				done( {
 					files: infoList
 				} );
 			});
-			_.each( files, function(f) {
-				var stats = fs.statSync( abs + '/' + f );
+			_.each( files, function(f, name) {
+				var stats = fs.statSync( listShares ? f : abs + '/' + f );
 				var finfo = {};
 
 				if ( !stats ) {
-					finfo = { name: f };
+					finfo = { name: listShares ? name : f };
 					infoList.push( finfo );
 					fileMapped();
 					return;
 				}
 
 				finfo = {
-					name: f,
+                    name: listShares ? name : f,
 					type: 'application/octet-stream',
 					size: stats.size,
 					mtime: stats.mtime,
@@ -65,7 +94,7 @@ var commands = {
 
 				fileMapped();
 			});
-		});
+		}
 	},
 
 	get: function( path, done ) {
@@ -115,6 +144,40 @@ function handleError( err, done )
 	//or have a way of mapping certain errors to headers.
 	console.log( 'err', err );
 	done( {error: err} );
+}
+
+/**
+ * given a path like /foo/bar/baz, finds out what virtual top level
+ * folder /foo is, then takes that path and adds /bar/baz.
+ * returns false if the top level is not found.
+ * returns true for the root
+ */
+function toRealPath( vpath ) {
+    var pjoin = require( 'path' ).join;
+
+    //remove leading slash so it can match root names
+    if ( vpath.charAt(0) === '/' ) {
+        vpath = vpath.substr(1);
+    }
+
+    //vpath was "/", which just means list all the shares.
+    if ( !vpath.length ) {
+        return true;
+    }
+
+    vpath = vpath.split( '/' );
+    var vroot = vpath.shift();
+
+    var root = _.find( conf.shares, function( info, name ) {
+        return vroot === name;
+    });
+
+
+    if ( root ) {
+        return pjoin.apply( this, [ root.path ].concat( vpath ) );
+    }
+
+    return false;
 }
 
 function mimeLookup( path, done ) {

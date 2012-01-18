@@ -23,11 +23,11 @@ RequestHandler.prototype = {
     headers: {},
 
 	getResult: function(done){
-        console.log( 'pre decode', this.req.url );
+        //console.log( 'pre decode', this.req.url );
         var req = this.req,
 			url = decodeURI( req.url ),
             resp;
-        console.log( 'post decode', url );
+        //console.log( 'post decode', url );
         _.any(this.routes, function( r ) {
             var match = r.regex.exec( url );
             if ( match ) {
