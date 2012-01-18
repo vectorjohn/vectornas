@@ -54,8 +54,6 @@ File.views = {
 
         list.delegate( 'a', 'click', function( ev )
         {
-            console.log( ev );
-
             ev.preventDefault();
             ev.stopPropagation();
 
@@ -68,7 +66,7 @@ File.views = {
             if ( node.hasClass( 'type-file' ) ) {
                 //HANDLE THE FILE CLICK
                 //window.location = '/v/get/' + path;
-                el.trigger( 'fileselect', node.data( 'File' ) );
+                node.trigger( 'fileselect', node.data( 'File' ) );
                 return;
             }
 

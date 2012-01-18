@@ -1,9 +1,33 @@
 html,body {
 	background-color: #333;
 }
-body, h1, h2, h3, h4, h5, h6 {
+body, h1, h2, h3, h4, h5, h6, label {
 	color: #F82;
 }
 
 a:link { color: #CCC; }
 a:visited { color: #888; }
+
+/** Garbage for testing **/
+
+option.current {
+    background-color: yellow;
+    color: black;
+}
+
+.playlist-wrap .playlist { float: left; width: 400px; height: 400px; }
+
+.playlist-wrap { width: 600px; height: 400px; }
+
+.playlist-wrap .controls {
+    width: 100px;
+    float: left;
+    padding-left: 20px;
+}
+
+.playlist-wrap .controls > * {
+    display: block;
+    text-align: left;
+}
+
+
