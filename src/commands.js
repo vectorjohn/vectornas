@@ -58,7 +58,20 @@ var commands = {
 				} );
 			});
 			_.each( files, function(f, name) {
-				var stats = fs.statSync( listShares ? f : abs + '/' + f );
+                var stats;
+
+                try {
+                    stats = fs.statSync( listShares ? 
+                        f : abs + '/' + f );
+                } catch ( ex ) {
+                    //I guess we ignore this one.
+                    console.log( 'Error statting file: ',
+                        listShares ? f : abs + '/' + f );
+                        
+                    fileMapped();
+                    return;
+                }
+
 				var finfo = {};
 
 				if ( !stats ) {
